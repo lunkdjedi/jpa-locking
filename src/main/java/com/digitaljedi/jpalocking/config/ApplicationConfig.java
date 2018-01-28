@@ -21,16 +21,23 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.digitaljedi.jpalocking.listener.LoggingRetryListener;
+
 @Configuration
-@ComponentScan(basePackages = { "com.digitaljedi.jpalocking.service", "com.digitaljedi.jpalocking.repo", "com.digitaljedi.jpalocking.component" })
+@ComponentScan(basePackages = { "com.digitaljedi.jpalocking.service", "com.digitaljedi.jpalocking.repo",
+		"com.digitaljedi.jpalocking.component" })
 @EnableJpaRepositories(basePackages = { "com.digitaljedi.jpalocking.repo" })
 @EnableTransactionManagement
 @EnableConfigurationProperties
 @EnableJpaAuditing
-//@EnableRetry
+@EnableRetry
 public class ApplicationConfig {
 
 	@Bean
@@ -53,7 +60,7 @@ public class ApplicationConfig {
 		factory.setJpaVendorAdapter(vendorAdapter);
 
 		Properties jpaProperties = new Properties();
-		jpaProperties.setProperty("hibernate.show_sql", "true");
+		jpaProperties.setProperty("hibernate.show_sql", "false");
 		jpaProperties.setProperty("hibernate.format_sql", "false");
 		jpaProperties.setProperty("hibernate.hbm2ddl.auto", "update");
 		jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
@@ -69,28 +76,51 @@ public class ApplicationConfig {
 		txManager.setEntityManagerFactory(entityManagerFactory);
 		return txManager;
 	}
-	
+
 	@Bean
 	@Scope("prototype")
 	public ThreadPoolTaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-		
+
 		pool.setRejectedExecutionHandler(new RejectedExecutionHandler() {
 			@Override
 			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
 				System.out.println("REJECTED!");
 			}
 		});
-		
+
 		pool.setCorePoolSize(4);
 		pool.setMaxPoolSize(16);
 		pool.setWaitForTasksToCompleteOnShutdown(true);
 		pool.initialize();
 		return pool;
 	}
-	
+
 	@Bean
 	public Random random() {
 		return new Random(27);
 	}
+
+//	@Bean
+//	public RetryTemplate retryTemplate() {
+//		RetryTemplate retryTemplate = new RetryTemplate();
+//		retryTemplate.registerListener(new LoggingRetryListener());
+//		return retryTemplate;
+//	}
+	
+    @Bean
+    public RetryTemplate retryTemplate() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+         
+        FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
+        fixedBackOffPolicy.setBackOffPeriod(2000l);
+        retryTemplate.setBackOffPolicy(fixedBackOffPolicy);
+ 
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(10);
+        retryTemplate.setRetryPolicy(retryPolicy);
+        
+        retryTemplate.registerListener(new LoggingRetryListener());
+        return retryTemplate;
+    }
 }

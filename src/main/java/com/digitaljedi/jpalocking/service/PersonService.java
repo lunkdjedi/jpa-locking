@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.digitaljedi.jpalocking.domain.Person;
@@ -19,6 +20,7 @@ public class PersonService {
 	private Log LOG = LogFactory.getLog(this.getClass());
 
 	@Transactional
+	@Retryable
 	public Person write(Person p) {
 		LOG.info("write");
 		Person person = p;

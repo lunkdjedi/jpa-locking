@@ -92,7 +92,7 @@ public class PessimisticTest {
 		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
 
 		for (int i=0; i<5; i++) {
-			RandomPersonDataWorker worker = applicationContext.getBean(RandomPersonDataWorker.class);
+			RandomPersonDataWorker worker = applicationContext.getBean(RandomPersonDataWorker.class, "worker #"+i);
 			taskExecutor.submit(worker);
 			LOG.info("Submitted: " + worker);
 		}
