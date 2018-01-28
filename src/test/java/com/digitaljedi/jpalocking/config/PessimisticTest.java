@@ -39,7 +39,7 @@ public class PessimisticTest {
 		Person p = new Person();
 		p.setFirstname("test1");
 		p.setLastname("case1");
-		personService.write(p);
+		personService.writeRetry(p);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class PessimisticTest {
 		Person person = personService.read(1);
 		Assert.assertNotNull(person);
 		person.setFirstname("testWrite");
-		person = personService.write(person);
+		person = personService.writeRetry(person);
 		LOG.info(person);
 	}
 
@@ -70,10 +70,10 @@ public class PessimisticTest {
 	@Test
 	public void testLockedWrite() {
 		Person person = personService.readForUpdate(1);
-		person = personService.write(person);
+		person = personService.writeRetry(person);
 		Assert.assertNotNull(person);
 		person.setFirstname("testLockedWrite");
-		person = personService.write(person);
+		person = personService.writeRetry(person);
 		LOG.info(person);
 	}
 
@@ -83,7 +83,7 @@ public class PessimisticTest {
 		person = personService.slowWrite(person);
 		Assert.assertNotNull(person);
 		person.setFirstname("testSlowLockedWrite");
-		person = personService.write(person);
+		person = personService.writeRetry(person);
 		LOG.info(person);
 	}
 
