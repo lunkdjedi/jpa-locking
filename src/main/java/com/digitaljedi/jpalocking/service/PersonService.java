@@ -15,33 +15,38 @@ public class PersonService {
 
 	@Autowired
 	private PersonRepository personRepository;
-	
+
 	private Log LOG = LogFactory.getLog(this.getClass());
-	
+
+	@Transactional
+	public Person write(Person p) {
+		LOG.info("write");
+		Person person = p;
+		person = personRepository.save(p);
+		return person;
+	}
+
 	@Transactional
 	public Person slowWrite(Person p) {
-		Person person = personRepository.findById(p.getId());
-		if (person==null) person = new Person();
-		person.setFirstname(p.getFirstname());
-		person.setLastname(p.getLastname());
+		LOG.info("slowWrite");
 		try {
-			LOG.info("slowWriteSleeping...");
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		LOG.info("Slow Wrote " + personRepository.save(person));
-		return person;
+		return personRepository.save(p);
+	}
+
+	@Transactional
+	public Person read(Integer id) {
+		LOG.info("read");
+		return personRepository.findOne(id);
 	}
 	
 	@Transactional
-	public Person write(Person p) {
-		Person person = personRepository.findById(p.getId());
-		if (person==null) person = new Person();
-		person.setFirstname(p.getFirstname());
-		person.setLastname(p.getLastname());
-		person = personRepository.save(person);
-		LOG.info("Wrote " + person);
-		return person;
+	public Person readForUpdate(Integer id) {
+		LOG.info("findByIdForUpdate");
+		return personRepository.findByIdForUpdate(id);
 	}
+
 }
