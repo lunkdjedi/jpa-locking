@@ -1,4 +1,4 @@
-package com.digitaljedi.jpalocking.config;
+package com.digitaljedi.jpalocking.service;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,13 +16,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.digitaljedi.jpalocking.component.workers.RandomPersonDataWorker;
+import com.digitaljedi.jpalocking.config.ApplicationConfig;
 import com.digitaljedi.jpalocking.domain.Person;
 import com.digitaljedi.jpalocking.service.PersonService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationConfig.class })
 @SpringBootTest
-public class PessimisticTest {
+public class PersonServiceTest {
 
 	@Autowired
 	PersonService personService;
