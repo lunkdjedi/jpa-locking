@@ -93,7 +93,7 @@ public class ApplicationConfig {
 			}
 		});
 
-		pool.setCorePoolSize(4);
+		pool.setCorePoolSize(16);
 		pool.setMaxPoolSize(16);
 		pool.setWaitForTasksToCompleteOnShutdown(true);
 		pool.initialize();

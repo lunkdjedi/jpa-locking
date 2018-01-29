@@ -26,7 +26,7 @@ public class PersonService {
 	private Log LOG = LogFactory.getLog(this.getClass());
 	
 	@Transactional
-	@Retryable(RuntimeException.class)
+	@Retryable(include= {Exception.class}, maxAttempts=10)
 	public Person writeRetryAnnotation(Person p) {
 		LOG.debug("writeRetryAnnotation");
 		
@@ -39,7 +39,7 @@ public class PersonService {
 		
 		person.setFirstname(p.getFirstname());
 		person.setLastname(p.getLastname());
-		person = personRepository.save(p);
+		person = personRepository.save(person);
 		LOG.info(person);
 		return person;
 	}
@@ -47,7 +47,7 @@ public class PersonService {
 	
 	@Transactional
 //	@Retryable
-	public Person writeRetry(Person p) {
+	public Person writeRetry(final Person p) {
 		Person person = retryTemplate.execute(new RetryCallback<Person, RuntimeException>() {
 			@Override
 			public Person doWithRetry(RetryContext arg0) throws RuntimeException {
@@ -62,7 +62,7 @@ public class PersonService {
 				
 				person.setFirstname(p.getFirstname());
 				person.setLastname(p.getLastname());
-				person = personRepository.save(p);
+				person = personRepository.save(person);
 				LOG.info(person);
 				return person;
 			}

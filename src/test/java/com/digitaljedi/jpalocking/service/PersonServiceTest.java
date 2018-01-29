@@ -2,8 +2,6 @@ package com.digitaljedi.jpalocking.config;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -91,22 +89,22 @@ public class PessimisticTest {
 	public void testGenerateOptimisticLockExceptions() {
 		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
 
-		for (int i=0; i<5; i++) {
-			RandomPersonDataWorker worker = applicationContext.getBean(RandomPersonDataWorker.class, "worker #"+i);
+		for (int i = 0; i < 10; i++) {
+			RandomPersonDataWorker worker = applicationContext.getBean(RandomPersonDataWorker.class, "worker #" + i);
 			taskExecutor.submit(worker);
 			LOG.info("Submitted: " + worker);
 		}
-		
+
 		taskExecutor.shutdown();
-		
+
 		try {
-			taskExecutor.getThreadPoolExecutor().awaitTermination(10, TimeUnit.SECONDS);
+			taskExecutor.getThreadPoolExecutor().awaitTermination(60, TimeUnit.SECONDS);
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		LOG.info(personService.read(1));
 
 	}
